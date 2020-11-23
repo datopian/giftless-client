@@ -2,7 +2,7 @@
 """
 import pytest
 
-from giftless_client import client
+from giftless_client import transfer
 
 
 @pytest.mark.parametrize('want_digest,expected', [
@@ -12,4 +12,4 @@ def test_calculate_want_digest(want_digest, expected):
     """Test that want_digest is handled properly
     """
     data = b'Why not Zoidberg?'
-    assert expected == client.calculate_digest_header(data, want_digest)
+    assert expected == transfer.calculate_digest_header(data, want_digest)
