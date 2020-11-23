@@ -1,0 +1,5 @@
+click==7.*
+typing==3.*; python_version <'3.0'
+typing-extensions==3.*
+python-dateutil==2.*
+requests==2.*

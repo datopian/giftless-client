@@ -1,0 +1,12 @@
+/.idea
+/.venv*
+/build
+/dist
+/.coverage
+/.make-cache
+/.python-version
+__pycache__
+*.egg-info
+*.pyc
+.pytest_cache
+.mypy_cache
