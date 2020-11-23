@@ -72,6 +72,29 @@ class LfsClient(object):
 
         return adapter.upload(file_obj, response['objects'][0])
 
+    def download(self, file_obj, object_sha256, object_size, organization, repo, **extras):
+        # type: (BinaryIO, str, int, str, str, Any) -> None
+        """Download a file and save it to file_obj
+
+        file_obj is expected to be an file-like object open for writing in binary mode
+
+        TODO: allow specifying more than one file for a single batch operation
+        """
+        object_attrs = {"oid": object_sha256, "size": object_size}
+
+        # Giftless specific extra object attributes
+        for k, v in extras.items():
+            object_attrs['x-{}'.format(k)] = v
+
+        response = self.batch('{}/{}'.format(organization, repo), 'download', [object_attrs])
+
+        try:
+            adapter = self.TRANSFER_ADAPTERS[response['transfer']]()
+        except KeyError:
+            raise ValueError("Unsupported transfer adapter: {}".format(response['transfer']))
+
+        return adapter.download(file_obj, response['objects'][0])
+
     def _url_for(self, *segments, **params):
         # type: (str, str) -> str
         path = os.path.join(*segments)

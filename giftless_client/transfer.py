@@ -1,3 +1,5 @@
+from __future__ import division
+
 import base64
 import hashlib
 import logging
@@ -14,10 +16,40 @@ class BasicTransferAdapter(object):
 
     def upload(self, file_obj, upload_spec):
         # type: (BinaryIO, types.UploadObjectAttributes) -> None
-        raise NotImplementedError("Basic uploads are not implemented yet")
+        try:
+            ul_action = upload_spec['actions']['upload']
+        except KeyError:  # Object is already on the server
+            return
+
+        reply = requests.put(ul_action['href'], headers=ul_action.get('header', {}), data=file_obj)
+        if reply.status_code // 100 != 2:
+            raise RuntimeError("Unexpected reply from server for upload: {} {}".format(reply.status_code, reply.text))
+
+        vfy_action = upload_spec['actions'].get('verify')
+        if vfy_action:
+            self._verify_object(vfy_action, upload_spec['oid'], upload_spec['size'])
+
+    def download(self, file_obj, download_spec):
+        # type: (BinaryIO, types.DownloadObjectAttributes) -> None
+        """Download an object from LFS
+        """
+        dl_action = download_spec['actions']['download']
+        with requests.get(dl_action['href'], headers=dl_action.get('header', {}), stream=True) as response:
+            for chunk in response.iter_content(1024 * 16):
+                file_obj.write(chunk)
+
+    @staticmethod
+    def _verify_object(verify_action, oid, size):
+        # type: (types.BasicActionAttributes, str, int) -> None
+        _log.info("Sending verify action to %s", verify_action['href'])
+        response = requests.post(verify_action['href'], headers=verify_action.get('header', {}),
+                                 json={"oid": oid, "size": size})
+        if response.status_code // 100 != 2:
+            raise RuntimeError("verify failed with error status code: {}: {}".format(
+                response.status_code, response.text))
 
 
-class MultipartTransferAdapter(object):
+class MultipartTransferAdapter(BasicTransferAdapter):
 
     def upload(self, file_obj, upload_spec):
         # type: (BinaryIO, types.MultipartUploadObjectAttributes) -> None
@@ -55,12 +87,7 @@ class MultipartTransferAdapter(object):
 
         verify_action = actions.get('verify')
         if verify_action:
-            _log.info("Sending verify action to %s", verify_action['href'])
-            response = requests.post(verify_action['href'], headers=verify_action.get('header', {}),
-                                     json={"oid": upload_spec['oid'], "size": upload_spec['size']})
-            if response.status_code // 100 != 2:
-                raise RuntimeError("verify failed with error status code: {}: {}".format(
-                    response.status_code, response.text))
+            self._verify_object(verify_action, upload_spec['oid'], upload_spec['size'])
 
     def _send_part_request(self, file_obj, href, method='PUT', pos=0, size=None, want_digest=None, header=None, **_):
         # type: (BinaryIO, str, str, int, Optional[int], Optional[str], Optional[Dict[str, Any]], Any) -> None
