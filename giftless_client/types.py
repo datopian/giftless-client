@@ -11,7 +11,7 @@ else:
 
 ObjectAttributes = TypedDict('ObjectAttributes', {
     'oid': str,
-    'size': str,
+    'size': int,
 })
 
 BasicUploadActions = TypedDict('BasicUploadActions', {
@@ -22,7 +22,7 @@ BasicUploadActions = TypedDict('BasicUploadActions', {
 UploadObjectAttributes = TypedDict('UploadObjectAttributes', {
     'actions': BasicUploadActions,
     'oid': str,
-    'size': str,
+    'size': int,
 }, total=False)
 
 MultipartUploadActions = TypedDict('MultipartUploadActions', {
@@ -36,5 +36,5 @@ MultipartUploadActions = TypedDict('MultipartUploadActions', {
 MultipartUploadObjectAttributes = TypedDict('MultipartUploadObjectAttributes', {
     'actions': MultipartUploadActions,
     'oid': str,
-    'size': str,
+    'size': int,
 }, total=False)
