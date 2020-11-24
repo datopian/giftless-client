@@ -1,7 +1,7 @@
 Giftless Client
 ===============
-A Git LFS client library implemented in Python, compatible with the  
-[Giftless server](https://github.com/datopian/giftless). 
+A Git LFS client library implemented in Python, compatible with the [
+Giftless Git LFS server](https://github.com/datopian/giftless). 
 
 `giftless-client` is tested on Python 2.7 and 3.6+. 
 
@@ -24,9 +24,11 @@ Git LFS operations.
 ```python
 from giftless_client import LfsClient
 
-client = LfsClient(lfs_server_url='https://git-lfs.example.com',  # Git LFS server URL
-                   auth_token='somer4nd0mT0ken==',                # Bearer token if required by the server
-                   transfer_adapters=['basic'])                   # Enabled transfer adapters (optional)
+client = LfsClient(
+    lfs_server_url='https://git-lfs.example.com', # Git LFS server URL
+    auth_token='somer4nd0mT0ken==',               # Bearer token if required by the server (optional)
+    transfer_adapters=['basic']                   # Enabled transfer adapters (optional)
+)
 ```
 The `transfer_adapters` parameter is optional, and represents a list of supported transfer adapters by priority
 to negotiate with the server; Typically, there is no reason to provide this parameter.  
@@ -56,6 +58,5 @@ Run the following command to get more information:
 
 License
 -------
-`giftless-client` is free software distributed under the terms of the MIT license. See [LICENSE] for details. 
- 
-`giftless-client` is (c) 2020 Datopian / Viderum Inc.
+Giftless Client is free software distributed under the terms of the MIT license. See [LICENSE](LICENSE) for details. 
+Giftless Client is (c) 2020 Datopian / Viderum Inc.
