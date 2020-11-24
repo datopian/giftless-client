@@ -59,5 +59,5 @@ Run the following command to get more information:
 License
 -------
 Giftless Client is free software distributed under the terms of the MIT license. See [LICENSE](LICENSE) for details.
-
+ 
 Giftless Client is (c) 2020 Datopian / Viderum Inc.
