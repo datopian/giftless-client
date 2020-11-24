@@ -33,6 +33,8 @@ class LfsClient(object):
     def batch(self, prefix, operation, objects, ref=None, transfers=None):
         # type: (str, str, List[Dict[str, Any]], Optional[str], Optional[List[str]]) -> Dict[str, Any]
         """Send a batch request to the LFS server
+
+        TODO: allow specifying more than one file for a single batch operation
         """
         url = self._url_for(prefix, 'objects', 'batch')
         if transfers is None:
@@ -56,13 +58,12 @@ class LfsClient(object):
         _log.debug("Got reply for batch request: %s", response.json())
         return response.json()
 
-    def upload(self, file_obj, organization, repo):
-        # type: (BinaryIO, str, str) -> None
+    def upload(self, file_obj, organization, repo, **extras):
+        # type: (BinaryIO, str, str, Any) -> types.ObjectAttributes
         """Upload a file to LFS storage
-
-        TODO: allow specifying more than one file for a single batch operation
         """
         object_attrs = self._get_object_attrs(file_obj)
+        self._add_extra_object_attributes(object_attrs, extras)
         response = self.batch('{}/{}'.format(organization, repo), 'upload', [object_attrs])
 
         try:
@@ -70,7 +71,8 @@ class LfsClient(object):
         except KeyError:
             raise ValueError("Unsupported transfer adapter: {}".format(response['transfer']))
 
-        return adapter.upload(file_obj, response['objects'][0])
+        adapter.upload(file_obj, response['objects'][0])
+        return object_attrs
 
     def download(self, file_obj, object_sha256, object_size, organization, repo, **extras):
         # type: (BinaryIO, str, int, str, str, Any) -> None
@@ -81,10 +83,7 @@ class LfsClient(object):
         TODO: allow specifying more than one file for a single batch operation
         """
         object_attrs = {"oid": object_sha256, "size": object_size}
-
-        # Giftless specific extra object attributes
-        for k, v in extras.items():
-            object_attrs['x-{}'.format(k)] = v
+        self._add_extra_object_attributes(object_attrs, extras)
 
         response = self.batch('{}/{}'.format(organization, repo), 'download', [object_attrs])
 
@@ -104,8 +103,8 @@ class LfsClient(object):
         return url
 
     @staticmethod
-    def _get_object_attrs(file_obj):
-        # type: (BinaryIO) -> types.ObjectAttributes
+    def _get_object_attrs(file_obj, **extras):
+        # type: (BinaryIO, Any) -> types.ObjectAttributes
         digest = hashlib.sha256()
         try:
             while True:
@@ -121,3 +120,11 @@ class LfsClient(object):
             file_obj.seek(0)
 
         return types.ObjectAttributes(oid=oid, size=size)
+
+    @staticmethod
+    def _add_extra_object_attributes(attributes, extras):
+        # type: (types.ObjectAttributes, Dict[str, Any]) -> None
+        """Add Giftless-specific 'x-...' attributes to an object dict
+        """
+        for k, v in extras.items():
+            attributes['x-{}'.format(k)] = v
