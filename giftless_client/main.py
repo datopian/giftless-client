@@ -2,7 +2,6 @@
 
 This is mainly for testing purposes
 
-# TODO: add upload and download functionality
 # TODO: add authentication support and pluggable authenticators
 # TODO: can we make this compatible with the Git LFS binary?
 """

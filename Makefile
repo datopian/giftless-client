@@ -64,10 +64,10 @@ $(SENTINELS)/dist-setup: | $(SENTINELS)
 	$(PIP) install -U pip wheel twine
 	@touch $@
 
-$(SENTINELS)/dist: $(SENTINELS)/dist-setup $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION).tar.gz $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION)-py3-none-any.whl | $(SENTINELS)
+$(SENTINELS)/dist: $(SENTINELS)/dist-setup $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION).tar.gz $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION)-py2.py3-none-any.whl | $(SENTINELS)
 	@touch $@
 
-$(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION).tar.gz $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION)-py2-py3-none-any.whl: $(SOURCE_FILES) setup.py | $(SENTINELS)/dist-setup
+$(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION).tar.gz $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION)-py2.py3-none-any.whl: $(SOURCE_FILES) setup.py | $(SENTINELS)/dist-setup
 	$(PYTHON) setup.py sdist bdist_wheel --universal
 
 $(SENTINELS)/requirements: dev-requirements.txt requirements.txt | $(SENTINELS)
