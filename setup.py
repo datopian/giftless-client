@@ -21,5 +21,10 @@ setup(
         'python-dateutil',
         'typing-extensions'
     ],
-    package_data={}
+    package_data={},
+    entry_points={
+        'console_scripts': [
+            'giftless-client = giftless_client.main:main',
+        ]
+    },
 )
