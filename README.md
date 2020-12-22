@@ -30,17 +30,62 @@ client = LfsClient(
 The `transfer_adapters` parameter is optional, and represents a list of supported transfer adapters by priority
 to negotiate with the server; Typically, there is no reason to provide this parameter.
 
-#### Downloading a File from LFS storage 
+### Downloading a File from LFS storage 
 
-TBD
+Download a file and save it to file like object.
 
-#### Uploading a File to LFS storage
+```python
+download(file_obj, object_sha256, object_size, organization, repo, **extras)
+```
 
-TBD 
+* `file_obj` is expected to be an file-like object open for writing in binary mode
+* `object_sha256`: sha256 of the object you wish to download
+* `object_size`: size of the object you wish to download
+* `organization`, `repo`: used to generate the prefix for the batch request in form `organization/repo`
+* `extras` are added to the batch request attributes dict prefixed with `x-`. This is largely Giftless specific.
 
-#### Sending an LFS `batch` API request
+Note that the download itself is performed by the selected [Transfer Adapter][transfer].
 
-TBD
+[transfer]: https://github.com/datopian/giftless-client/blob/master/giftless_client/transfer.py
+
+### Uploading a File to LFS storage
+
+Upload a file to LFS storage
+
+```
+upload(file_obj, organization, repo, **extras)
+```
+
+* `file_obj`: a readable, seekable file-like object
+* Other arguments as per download
+
+Note that the upload itself is performed by the selected [Transfer Adapter][transfer].
+
+[transfer]: https://github.com/datopian/giftless-client/blob/master/giftless_client/transfer.py
+
+### Sending an LFS `batch` API request
+
+Send a [`batch` request][batch] to the LFS server:
+
+`batch(prefix, operation, objects, ref=None, transfers=None)`
+
+* `prefix`: add to LFS server url e.g. if `prefix=abc` and client was created with server url of `https://git-lfs.example.com` then batch request is made by POST to `https://git-lfs.example.com/abc/objects/batch`
+* All other arguments: see [batch command][batch] for definitions 
+
+[batch]: https://github.com/git-lfs/git-lfs/blob/master/docs/api/batch.md
+
+Example:
+
+```
+client.batch(
+  prefix='myorg/myrepo',
+  operation='download',
+  objects={
+      "oid": "12345678",
+      "size": 123
+    }
+)
+```
 
 ## Usage in Command Line
 
