@@ -1,26 +1,23 @@
-Giftless Client
-===============
-A Git LFS client library implemented in Python, compatible with the [
-Giftless Git LFS server](https://github.com/datopian/giftless). 
+# Giftless Client
+
+A Git LFS client library implemented in Python, compatible with Git LFS servers in general and specifically [Giftless Git LFS server](https://github.com/datopian/giftless). 
 
 `giftless-client` is tested on Python 2.7 and 3.6+. 
 
-Installation
-------------
+## Installation
+
 You can install this library directly from pypi:
 
 ```shell script
 (venv) $ pip install giftless-client
 ```
 
-API
----
-This module exposes one main class: `LfsClient`. Typically, you only need to use this class to perform most 
-Git LFS operations. 
+## API
 
-### `LfsClient` class
+This module exposes one main class: `LfsClient`. Typically, you only need to use this class to perform most Git LFS operations. The client provides both a wrapper around the low-level LFS API commands e.g. `batch` as well as higher level methods to upload and download files.
 
-#### Instantiating a Client
+### Instantiating a Client
+
 ```python
 from giftless_client import LfsClient
 
@@ -31,7 +28,7 @@ client = LfsClient(
 )
 ```
 The `transfer_adapters` parameter is optional, and represents a list of supported transfer adapters by priority
-to negotiate with the server; Typically, there is no reason to provide this parameter.  
+to negotiate with the server; Typically, there is no reason to provide this parameter.
 
 #### Downloading a File from LFS storage 
 
@@ -45,8 +42,8 @@ TBD
 
 TBD
 
-Usage in Command Line
----------------------
+## Usage in Command Line
+
 While the main use for `giftless-client` is as a client library for other projects, this module does include some 
 command line functionality.
 
@@ -56,8 +53,8 @@ Run the following command to get more information:
 (venv) $ giftless-client --help
 ```
 
-License
--------
+## License
+
 Giftless Client is free software distributed under the terms of the MIT license. See [LICENSE](LICENSE) for details.
  
 Giftless Client is (c) 2020 Datopian / Viderum Inc.
