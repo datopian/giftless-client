@@ -2,7 +2,6 @@
 """
 import hashlib
 import logging
-import os
 from typing import Any, BinaryIO, Dict, Iterable, List, Optional
 
 import requests
@@ -96,7 +95,7 @@ class LfsClient(object):
 
     def _url_for(self, *segments, **params):
         # type: (str, str) -> str
-        path = os.path.join(*segments)
+        path = '/'.join(segments)
         url = '{url}/{path}'.format(url=self._url, path=path)
         if params:
             url = '{url}?{params}'.format(url=url, params=urllib_parse.urlencode(params))
