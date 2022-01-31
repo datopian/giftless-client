@@ -34,12 +34,15 @@ class LfsClient(object):
         self._transfer_adapters = transfer_adapters
 
     def batch(self, prefix, operation, objects, ref=None, transfers=None):
-        # type: (str, str, List[Dict[str, Any]], Optional[str], Optional[List[str]]) -> Dict[str, Any]
+        # type: (Optional[str], str, List[Dict[str, Any]], Optional[str], Optional[List[str]]) -> Dict[str, Any]
         """Send a batch request to the LFS server
 
         TODO: allow specifying more than one file for a single batch operation
         """
-        url = self._url_for(prefix, 'objects', 'batch')
+        if prefix is not None:
+            url = self._url_for(prefix, 'objects', 'batch')
+        else:
+            url = self._url_for('objects', 'batch')
         if transfers is None:
             transfers = self._transfer_adapters
 
@@ -61,12 +64,15 @@ class LfsClient(object):
         return response.json()
 
     def upload(self, file_obj, organization, repo, **extras):
-        # type: (BinaryIO, str, str, Any) -> types.ObjectAttributes
+        # type: (BinaryIO, Optional[str], Optional[str], Any) -> types.ObjectAttributes
         """Upload a file to LFS storage
         """
         object_attrs = self._get_object_attrs(file_obj)
         self._add_extra_object_attributes(object_attrs, extras)
-        response = self.batch('{}/{}'.format(organization, repo), 'upload', [object_attrs])
+        prefix = None
+        if organization is not None or repo is not None:
+            prefix = '{}/{}'.format(organization, repo)
+        response = self.batch(prefix, 'upload', [object_attrs])
 
         try:
             adapter = self.TRANSFER_ADAPTERS[response['transfer']]()
@@ -77,7 +83,7 @@ class LfsClient(object):
         return object_attrs
 
     def download(self, file_obj, object_sha256, object_size, organization, repo, **extras):
-        # type: (BinaryIO, str, int, str, str, Any) -> None
+        # type: (BinaryIO, str, int, Optional[str], Optional[str], Any) -> None
         """Download a file and save it to file_obj
 
         file_obj is expected to be an file-like object open for writing in binary mode
@@ -87,7 +93,10 @@ class LfsClient(object):
         object_attrs = {"oid": object_sha256, "size": object_size}
         self._add_extra_object_attributes(object_attrs, extras)
 
-        response = self.batch('{}/{}'.format(organization, repo), 'download', [object_attrs])
+        prefix = None
+        if organization is not None or repo is not None:
+            prefix = '{}/{}'.format(organization, repo)
+        response = self.batch(prefix, 'download', [object_attrs])
 
         try:
             adapter = self.TRANSFER_ADAPTERS[response['transfer']]()
